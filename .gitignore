@@ -1,2 +1,8 @@
 env_lmarey
 dataset
+log
+saved
+log_tensorboard
+figures
+predicted
+*.out

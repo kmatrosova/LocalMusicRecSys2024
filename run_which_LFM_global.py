@@ -1,8 +1,8 @@
 from recbole.quick_start import run_recbole
 
 if __name__ == "__main__":
-    for platform in ["LFM", "DEEZER"]:
-        for country in ["GLOBAL", "FR", "DE", "BR"]:
+    for platform in ["LFM"]:
+        for country in ["GLOBAL2", "GLOBAL3"]:
             for model in ["ItemKNN", "NeuMF"]:
                 run_recbole(
                     model=model,
