@@ -6,3 +6,5 @@ log_tensorboard
 figures
 predicted
 *.out
+saved_old
+predicted_old
