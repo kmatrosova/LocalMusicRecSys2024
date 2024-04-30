@@ -1,4 +1,5 @@
 ray
+"ray[tune]"
 recbole
 pandas
 numpy

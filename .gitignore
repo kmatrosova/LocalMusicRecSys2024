@@ -1,4 +1,3 @@
-env_lmarey
 dataset
 log
 saved
@@ -8,3 +7,4 @@ predicted
 *.out
 saved_old
 predicted_old
+processing
