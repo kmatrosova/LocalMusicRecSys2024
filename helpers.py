@@ -27,10 +27,29 @@ class MetadataProcesor:
 
 
 class MakePlots:
-    def __init__(self, metadata, k_values, matadata_filename) -> None:
+    def __init__(self, metadata, k_values, matadata_filename, global_models) -> None:
         self.metadata = metadata
         self.k_values = k_values
         self.matadata_filename = matadata_filename
+        self.global_label = 'GLOBAL' if global_models else 'LOCAL'
+        self.global_models = global_models
+        if self.global_models:
+            LFM_user_country = dict(
+                pd.read_csv("dataset/LFM_GLOBAL/demo.txt", sep="\t")
+                .T.reset_index()
+                .T.reset_index(drop=True)
+                .reset_index()[["index", 0]]
+                .to_numpy()
+            )
+            DEEZER_user_country = dict(
+                pd.read_csv("dataset/DEEZER_GLOBAL/user_country.csv").to_numpy()
+            )
+
+            self.user_country_dict = {
+                "DEEZER": DEEZER_user_country,
+                "LFM": LFM_user_country,
+            }
+
 
     def extract_top_k_reco(self, df, k):
         n_users = len(df.user_id.unique())
@@ -42,28 +61,61 @@ class MakePlots:
         self.n_tries = n_tries
         self.predictions = dict()
         for dataset in ["LFM", "DEEZER"]:
-            for country in ["FR", "DE", "BR"]:
-                for model in ["NeuMF", "ItemKNN"]:
+            for model in ["NeuMF", "ItemKNN"]:
+                if self.global_models:
                     filenames = sorted(
-                        os.listdir(f"predicted/{dataset}/{country}/{model}/"),
+                        os.listdir(f"predicted/{dataset}/GLOBAL/{model}/"),
                         reverse=True,
                     )
                     for try_index in tqdm(
-                        range(n_tries), desc=f"loading {dataset} {country} {model}"
+                        range(n_tries), desc=f"loading {dataset} GLOBAL {model}"
                     ):
                         filename = filenames[try_index]
-                        filepath = f"predicted/{dataset}/{country}/{model}/{filename}"
-                        predictions_df = pd.read_csv(filepath)[["user_id", "media_id"]]
+                        filepath = f"predicted/{dataset}/GLOBAL/{model}/{filename}"
+                        all_predictions_df = pd.read_csv(filepath)[["user_id", "media_id"]]
+                        for country in ["FR", "DE", "BR"]:
+                            country_user_ids = [
+                                int(uid)
+                                for uid, user_country in self.user_country_dict[
+                                    dataset
+                                ].items()
+                                if user_country == country
+                            ]
+                            predictions_df = all_predictions_df[
+                                all_predictions_df["user_id"].isin(country_user_ids)
+                            ].copy()
+                            predictions_df = self.extract_top_k_reco(
+                                predictions_df, max(self.k_values)
+                            )
+                            self.predictions[(dataset, country, model, try_index)] = (
+                                predictions_df
+                            )
+                else:
+                    filenames = sorted(
+                        os.listdir(f"predicted/{dataset}/GLOBAL/{model}/"),
+                        reverse=True,
+                    )
+                    for try_index in tqdm(
+                        range(n_tries), desc=f"loading {dataset} GLOBAL {model}"
+                    ):
 
-                        self.predictions[(dataset, country, model, try_index)] = (
-                            self.extract_top_k_reco(predictions_df, max(self.k_values))
-                        )
+                        filename = filenames[try_index]
+                        filepath = f"predicted/{dataset}/GLOABL/{model}/{filename}"
+                        predictions_df = pd.read_csv(filepath)[["user_id", "media_id"]]
+                        for country in ["FR", "DE", "BR"]:
+
+                            self.predictions[(dataset, country, model, try_index)] = (
+                                self.extract_top_k_reco(
+                                    predictions_df, max(self.k_values)
+                                )
+                            )
 
     def load_datasets(self):
 
         self.datasets = dict()
         for dataset in ["DEEZER", "LFM"]:
             for country in ["DE", "BR", "FR"]:
+                print(f"Loading {dataset} {country} dataset")
                 filename = dataset + "_" + country
                 df = pd.read_csv(f"dataset/{filename}/{filename}.inter")
                 df = df.rename(
@@ -101,7 +153,9 @@ class MakePlots:
         plt.legend(title="")
         plt.xlabel("")
         if save:
-            plt.savefig(f"figures/proportion_local_datasets_{self.matadata_filename}.pdf")
+            plt.savefig(
+                f"figures/proportion_local_datasets_{self.matadata_filename}_{self.global_label}.pdf"
+            )
         plt.show()
 
     def plot_local_listening_distribution_hist(self, save=False):
@@ -142,7 +196,9 @@ class MakePlots:
         sns.set_style("whitegrid")
         plt.legend()
         if save:
-            plt.savefig(f"./figures/local_listening_distribution_hist_{self.matadata_filename}.pdf")
+            plt.savefig(
+                f"./figures/local_listening_distribution_hist_{self.matadata_filename}_{self.global_label}.pdf"
+            )
         plt.plot()
 
     def compute_reco_results(self):
@@ -153,7 +209,7 @@ class MakePlots:
             for country in ["FR", "DE", "BR"]:
                 for model in ["NeuMF", "ItemKNN"]:
                     for try_index in tqdm(
-                        range(self.n_tries), desc=f"loading {dataset} {country} {model}"
+                        range(self.n_tries), desc=f"processing {dataset} {country} {model}"
                     ):
                         predictions_df = self.predictions[
                             (dataset, country, model, try_index)
@@ -189,7 +245,7 @@ class MakePlots:
 
         self.result_df = result_df
 
-    def plot_bias_topk_k_reco(self, save=False, matadata_filename = ''):
+    def plot_bias_topk_k_reco(self, save=False):
 
         sns.set_style("whitegrid")
         for dataset in ["LFM", "DEEZER"]:
@@ -217,6 +273,6 @@ class MakePlots:
             plt.legend(loc="center left", bbox_to_anchor=(1, 0.8))
 
             if save:
-                plt.savefig(f"./figures/bias_topk_{dataset}_{matadata_filename}.pdf")
+                plt.savefig(f"./figures/bias_topk_{dataset}_{self.matadata_filename}_{self.global_label}.pdf")
 
             plt.show()

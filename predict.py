@@ -6,7 +6,7 @@ import os
 k = 100
 
 for platform in ["DEEZER"]:
-    for country in ["GLOBAL"]:
+    for country in ["GLOBAL", "FR", "BR", "DE"]:
         for model_name in ["ItemKNN", "NeuMF"]:
 
             # load prediction data, interactions and users

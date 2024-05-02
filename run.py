@@ -5,7 +5,7 @@ import numpy as np
 if __name__ == "__main__":
     for n in range(20):
         print(f'{n + 1} ieme tour des datasets')
-        for platform in ["LFM", "DEEZER"]:
+        for platform in ["DEEZER", "LFM"]:
             for country in ["GLOBAL"]:
                 for model in ["ItemKNN", "NeuMF"]:
                     run_recbole(
