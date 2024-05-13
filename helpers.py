@@ -67,8 +67,12 @@ class MakePlots:
                         os.listdir(f"predicted/{dataset}/GLOBAL/{model}/"),
                         reverse=True,
                     )
+                    if n_tries == 'max':
+                        try_indices = range(len(filenames))
+                    else:
+                        try_indices = range(n_tries)
                     for try_index in tqdm(
-                        range(n_tries), desc=f"loading {dataset} GLOBAL {model}"
+                        try_indices, desc=f"loading {dataset} GLOBAL {model}"
                     ):
                         filename = filenames[try_index]
                         filepath = f"predicted/{dataset}/GLOBAL/{model}/{filename}"
@@ -91,18 +95,23 @@ class MakePlots:
                                 predictions_df
                             )
                 else:
-                    filenames = sorted(
-                        os.listdir(f"predicted/{dataset}/GLOBAL/{model}/"),
-                        reverse=True,
-                    )
-                    for try_index in tqdm(
-                        range(n_tries), desc=f"loading {dataset} GLOBAL {model}"
-                    ):
+                    for country in ["FR", "DE", "BR"]:
 
-                        filename = filenames[try_index]
-                        filepath = f"predicted/{dataset}/GLOABL/{model}/{filename}"
-                        predictions_df = pd.read_csv(filepath)[["user_id", "media_id"]]
-                        for country in ["FR", "DE", "BR"]:
+                        filenames = sorted(
+                            os.listdir(f"predicted/{dataset}/{country}/{model}/"),
+                            reverse=True,
+                        )
+                        if n_tries == 'max':
+                            try_indices = range(len(filenames))
+                        else:
+                            try_indices = range(n_tries)
+                        for try_index in tqdm(
+                            try_indices, desc=f"loading {dataset} {country} {model}"
+                        ):
+
+                            filename = filenames[try_index]
+                            filepath = f"predicted/{dataset}/{country}/{model}/{filename}"
+                            predictions_df = pd.read_csv(filepath)[["user_id", "media_id"]]
 
                             self.predictions[(dataset, country, model, try_index)] = (
                                 self.extract_top_k_reco(
@@ -154,14 +163,14 @@ class MakePlots:
         plt.xlabel("")
         if save:
             plt.savefig(
-                f"figures/proportion_local_datasets_{self.matadata_filename}_{self.global_label}.pdf"
+                f"figures/proportion_local_datasets_{self.matadata_filename}.pdf"
             )
         plt.show()
+        plt.close()
 
     def plot_local_listening_distribution_hist(self, save=False):
 
-        _, axs = plt.subplots(3, 1, figsize=(8, 18))
-
+        country_colors = ["tab:blue", "tab:green" ,"tab:orange"]
         for i, country in enumerate(["FR", "BR", "DE"]):
             df = self.datasets[("LFM", country)][["user_id", "country"]]
             df = pd.DataFrame(
@@ -174,32 +183,42 @@ class MakePlots:
                 df.groupby("user_id").value_counts(normalize=True)
             ).reset_index()
             DEEZER_proportions_list = df[df["country"] == country].proportion.tolist()
-
+            plt.figure()
             sns.histplot(
                 LFM_proportions_list,
                 stat="proportion",
                 bins=20,
-                ax=axs[i],
-                color="blue",
+                color=country_colors[i],
                 label="LFM",
             )
+            plt.title(f"{country}")
+            plt.ylim(0, 0.5)
+            sns.set_style("whitegrid")
+            if save:
+                plt.savefig(
+                    f"./figures/local_listening_distribution_hist_LFM_{country}.pdf"
+                )
+            plt.plot()
+            plt.close()
+
+            plt.figure()
             sns.histplot(
                 DEEZER_proportions_list,
                 stat="proportion",
                 bins=20,
-                ax=axs[i],
-                color="orange",
+                color=country_colors[i],
                 label="DEEZER",
             )
-            axs[i].set_title(f"{country}")
-            axs[i].set_ylim(0, 0.5)
-        sns.set_style("whitegrid")
-        plt.legend()
-        if save:
-            plt.savefig(
-                f"./figures/local_listening_distribution_hist_{self.matadata_filename}_{self.global_label}.pdf"
-            )
-        plt.plot()
+
+            plt.title(f"{country}")
+            plt.ylim(0, 0.5)
+            sns.set_style("whitegrid")
+            if save:
+                plt.savefig(
+                    f"./figures/local_listening_distribution_hist_DEEZER_{self.matadata_filename}_{country}.pdf"
+                )
+            plt.plot()
+            plt.close()
 
     def compute_reco_results(self):
 
@@ -208,8 +227,24 @@ class MakePlots:
         for dataset in ["LFM", "DEEZER"]:
             for country in ["FR", "DE", "BR"]:
                 for model in ["NeuMF", "ItemKNN"]:
+                    if self.global_models:
+                        filenames = sorted(
+                            os.listdir(f"predicted/{dataset}/GLOBAL/{model}/"),
+                            reverse=True,
+                        )
+                    else:
+                        filenames = sorted(
+                                    os.listdir(f"predicted/{dataset}/{country}/{model}/"),
+                                    reverse=True,
+                                                )
+
+                    if self.n_tries == 'max':
+                        try_indices = range(len(filenames))
+                    else:
+                        try_indices = range(self.n_tries)
+
                     for try_index in tqdm(
-                        range(self.n_tries), desc=f"processing {dataset} {country} {model}"
+                        try_indices, desc=f"processing {dataset} {country} {model}"
                     ):
                         predictions_df = self.predictions[
                             (dataset, country, model, try_index)
@@ -262,17 +297,24 @@ class MakePlots:
                 markers=True,
                 dashes=False,
                 err_style="band",
+                hue_order=['FR', 'DE', 'BR']
             )
 
             plt.axhline(y=0, color="black", linestyle="--")
-            plt.text(115, 0, "No bias", color="black", ha="right")
+            plt.text(113, 0, "No bias", color="black", ha="right")
             plt.xticks(self.k_values)
 
             plt.xlabel("k")
             plt.ylabel("% local recommended songs bias value")
-            plt.legend(loc="center left", bbox_to_anchor=(1, 0.8))
+            plt.legend(loc="center left", bbox_to_anchor=(1, 0.85))
 
             if save:
-                plt.savefig(f"./figures/bias_topk_{dataset}_{self.matadata_filename}_{self.global_label}.pdf")
+                if dataset == 'LFM':
+
+                    plt.savefig(f"./figures/bias_topk_{dataset}_{self.global_label}.pdf")
+                else:
+                    plt.savefig(f"./figures/bias_topk_{dataset}_{self.matadata_filename}_{self.global_label}.pdf")
+
 
             plt.show()
+            plt.close()
