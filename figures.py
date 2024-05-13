@@ -5,8 +5,8 @@ N_TRIES = "max"
 K_VALUES = range(10, 101, 5)
 LFM_metadata_file_name = "metadata_LFM"
 DEEZER_metadata_file_name_list = [
-    # "metadata_DEEZER_active",
-    # "metadata_DEEZER_musicbrainz",
+    "metadata_DEEZER_active",
+    "metadata_DEEZER_musicbrainz",
     "metadata_DEEZER_origin",
 ]
 
