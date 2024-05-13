@@ -31,7 +31,7 @@ class MakePlots:
         self.metadata = metadata
         self.k_values = k_values
         self.matadata_filename = matadata_filename
-        self.global_label = 'GLOBAL' if global_models else 'LOCAL'
+        self.global_label = "GLOBAL" if global_models else "LOCAL"
         self.global_models = global_models
         if self.global_models:
             LFM_user_country = dict(
@@ -50,7 +50,6 @@ class MakePlots:
                 "LFM": LFM_user_country,
             }
 
-
     def extract_top_k_reco(self, df, k):
         n_users = len(df.user_id.unique())
         k_max = int(len(df) / n_users)
@@ -67,7 +66,7 @@ class MakePlots:
                         os.listdir(f"predicted/{dataset}/GLOBAL/{model}/"),
                         reverse=True,
                     )
-                    if n_tries == 'max':
+                    if n_tries == "max":
                         try_indices = range(len(filenames))
                     else:
                         try_indices = range(n_tries)
@@ -76,7 +75,9 @@ class MakePlots:
                     ):
                         filename = filenames[try_index]
                         filepath = f"predicted/{dataset}/GLOBAL/{model}/{filename}"
-                        all_predictions_df = pd.read_csv(filepath)[["user_id", "media_id"]]
+                        all_predictions_df = pd.read_csv(filepath)[
+                            ["user_id", "media_id"]
+                        ]
                         for country in ["FR", "DE", "BR"]:
                             country_user_ids = [
                                 int(uid)
@@ -101,7 +102,7 @@ class MakePlots:
                             os.listdir(f"predicted/{dataset}/{country}/{model}/"),
                             reverse=True,
                         )
-                        if n_tries == 'max':
+                        if n_tries == "max":
                             try_indices = range(len(filenames))
                         else:
                             try_indices = range(n_tries)
@@ -110,8 +111,12 @@ class MakePlots:
                         ):
 
                             filename = filenames[try_index]
-                            filepath = f"predicted/{dataset}/{country}/{model}/{filename}"
-                            predictions_df = pd.read_csv(filepath)[["user_id", "media_id"]]
+                            filepath = (
+                                f"predicted/{dataset}/{country}/{model}/{filename}"
+                            )
+                            predictions_df = pd.read_csv(filepath)[
+                                ["user_id", "media_id"]
+                            ]
 
                             self.predictions[(dataset, country, model, try_index)] = (
                                 self.extract_top_k_reco(
@@ -137,7 +142,7 @@ class MakePlots:
     def plot_dataset_local_streams_percents(self, save=False):
         proportion_local_datasets = []
         for dataset in ["DEEZER", "LFM"]:
-            for country in ["DE", "BR", "FR"]:
+            for country in ["FR", "DE", "BR"]:
                 proportion_local_datasets.append(
                     [
                         dataset,
@@ -150,17 +155,34 @@ class MakePlots:
 
         self.proportion_local_datasets = pd.DataFrame(
             proportion_local_datasets,
-            columns=["Dataset", "Country", "Proportion of local streams"],
+            columns=["Dataset", "Country", "Proportion of Local Streams"],
         )
-        sns.set_style("whitegrid")
+
+        self.proportion_local_datasets["Dataset_"] = self.proportion_local_datasets[
+            "Dataset"
+        ].replace({"DEEZER": "XXXX"})
+        aliases = {
+            "FR": "France",
+            "DE": "Germany",
+            "BR": "Brazil",
+        }
+        self.proportion_local_datasets["Country_"] = self.proportion_local_datasets[
+            "Country"
+        ].replace(aliases)
+
+        sns.set_style("white")
         sns.barplot(
             self.proportion_local_datasets,
-            x="Country",
-            y="Proportion of local streams",
-            hue="Dataset",
+            x="Country_",
+            y="Proportion of Local Streams",
+            hue="Dataset_",
+            palette="bone",
         )
-        plt.legend(title="")
+        plt.xticks(fontsize=14)
         plt.xlabel("")
+        plt.legend(title="")
+        plt.ylabel("Proportion of Local Streams", fontsize=14)
+
         if save:
             plt.savefig(
                 f"figures/proportion_local_datasets_{self.matadata_filename}.pdf"
@@ -170,7 +192,7 @@ class MakePlots:
 
     def plot_local_listening_distribution_hist(self, save=False):
 
-        country_colors = ["tab:blue", "tab:green" ,"tab:orange"]
+        country_colors = ["tab:blue", "tab:green", "tab:orange"]
         for i, country in enumerate(["FR", "BR", "DE"]):
             df = self.datasets[("LFM", country)][["user_id", "country"]]
             df = pd.DataFrame(
@@ -187,13 +209,16 @@ class MakePlots:
             sns.histplot(
                 LFM_proportions_list,
                 stat="proportion",
-                bins=20,
+                bins=10,
                 color=country_colors[i],
                 label="LFM",
             )
-            plt.title(f"{country}")
+            #             plt.title(f"{country}")
             plt.ylim(0, 0.5)
-            sns.set_style("whitegrid")
+            plt.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
+            plt.ylabel("User Proportion", fontsize=14)
+            plt.xlabel("Proportion of Local Streams", fontsize=14)
+            sns.set_style("white")
             if save:
                 plt.savefig(
                     f"./figures/local_listening_distribution_hist_LFM_{country}.pdf"
@@ -205,14 +230,17 @@ class MakePlots:
             sns.histplot(
                 DEEZER_proportions_list,
                 stat="proportion",
-                bins=20,
+                bins=10,
                 color=country_colors[i],
                 label="DEEZER",
             )
 
-            plt.title(f"{country}")
+            #             plt.title(f"{country}")
             plt.ylim(0, 0.5)
-            sns.set_style("whitegrid")
+            plt.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
+            plt.ylabel("User Proportion", fontsize=14)
+            plt.xlabel("Proportion of Local Streams", fontsize=14)
+            sns.set_style("white")
             if save:
                 plt.savefig(
                     f"./figures/local_listening_distribution_hist_DEEZER_{self.matadata_filename}_{country}.pdf"
@@ -234,11 +262,11 @@ class MakePlots:
                         )
                     else:
                         filenames = sorted(
-                                    os.listdir(f"predicted/{dataset}/{country}/{model}/"),
-                                    reverse=True,
-                                                )
+                            os.listdir(f"predicted/{dataset}/{country}/{model}/"),
+                            reverse=True,
+                        )
 
-                    if self.n_tries == 'max':
+                    if self.n_tries == "max":
                         try_indices = range(len(filenames))
                     else:
                         try_indices = range(self.n_tries)
@@ -274,7 +302,7 @@ class MakePlots:
             - self.proportion_local_datasets[
                 (self.proportion_local_datasets["Dataset"] == row.Data)
                 & (self.proportion_local_datasets["Country"] == row.Country)
-            ]["Proportion of local streams"].values[0],
+            ]["Proportion of Local Streams"].values[0],
             axis=1,
         )
 
@@ -282,12 +310,19 @@ class MakePlots:
 
     def plot_bias_topk_k_reco(self, save=False):
 
-        sns.set_style("whitegrid")
+        aliases = {
+            "FR": "France",
+            "DE": "Germany",
+            "BR": "Brazil",
+        }
         for dataset in ["LFM", "DEEZER"]:
             filtered_data = self.result_df[
                 self.result_df["Data"] == dataset
             ].sort_values(by="k")
-            plt.figure(figsize=(12, 7))
+
+            filtered_data["Country"] = filtered_data["Country"].replace(aliases)
+            sns.set_style("whitegrid")
+            plt.figure(figsize=(14, 7))
             sns.lineplot(
                 data=filtered_data,
                 x="k",
@@ -297,24 +332,27 @@ class MakePlots:
                 markers=True,
                 dashes=False,
                 err_style="band",
-                hue_order=['FR', 'DE', 'BR']
+                hue_order=["France", "Germany", "Brazil"],
             )
 
             plt.axhline(y=0, color="black", linestyle="--")
-            plt.text(113, 0, "No bias", color="black", ha="right")
+            plt.text(113, 0, "No bias", color="black", ha="right", fontsize="medium")
             plt.xticks(self.k_values)
 
-            plt.xlabel("k")
-            plt.ylabel("% local recommended songs bias value")
-            plt.legend(loc="center left", bbox_to_anchor=(1, 0.85))
+            plt.xlabel("k", fontsize=14)
+            plt.ylabel("Local Bias", fontsize=14)
+            plt.legend(loc='upper right', bbox_to_anchor=(1, 0.85), fontsize = 12)
 
             if save:
-                if dataset == 'LFM':
+                if dataset == "LFM":
 
-                    plt.savefig(f"./figures/bias_topk_{dataset}_{self.global_label}.pdf")
+                    plt.savefig(
+                        f"./figures/bias_topk_{dataset}_{self.global_label}.pdf"
+                    )
                 else:
-                    plt.savefig(f"./figures/bias_topk_{dataset}_{self.matadata_filename}_{self.global_label}.pdf")
-
+                    plt.savefig(
+                        f"./figures/bias_topk_{dataset}_{self.matadata_filename}_{self.global_label}.pdf"
+                    )
 
             plt.show()
             plt.close()
