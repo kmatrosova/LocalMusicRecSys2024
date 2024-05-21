@@ -1,5 +1,8 @@
 # FairnessRecsys2024
 
+Code for reproducibility paper "Do Recommender Systems Promote Local Music? A Reproducibility Study Using Music Streaming Data"  
+(Anonymous athor(s))
+
 ## Onboarding
 
 Install recbole :
@@ -35,7 +38,7 @@ saved_model_file = "{}-{}.pth".format(self.config["model"], get_local_time())
 to
 
 ```
-saved_model_file = "{}/{}/{}.pth".format(self.config["platform"], self.config["country"], self.config["model"])
+saved_model_file = f"{self.config["platform"]}/{self.config["country"]}/{self.config["model"]}/get_local_time().pth"
 ```
 
 ## Running the code
@@ -46,17 +49,126 @@ Training and testing a model on a specified dataset
 python run.py
 ```
 
-Load trained data and get top k items for each user
+Get and save top k items for each user for each model
 
 ```
-predict.ipynb
+python predict.py
 ```
 
-Visualisation
+Make figures
 
 ```
-figures.ipynb
+python figures.py
 ```
+
+## Data and model folders
+
+```
+|
+|
+|____________ dataset
+|                |
+|                |
+|                |____________ XXX_FR
+|                |                |____________ XXX_FR.inter
+|                |
+|                |____________ XXX_BR
+|                |                |____________ XXX_BR.inter
+|                |
+|                |____________ XXX_DE
+|                |                |____________ XXX_DE.inter
+|                |
+|                |____________ XXX_GLOBAL
+|                |                |____________ XXX_GLOBAL.inter
+|                |
+|                |____________ LFM_FR
+|                |                |____________ LFM_FR.inter
+|                |
+|                |____________ LFM_BR
+|                |                |____________ LFM_BR.inter
+|                |
+|                |____________ LFM_DE
+|                |                |____________ LFM_DE.inter
+|                |
+|                |____________ LFM_GLOBAL
+|                                 |____________ LFM_GLOBAL.inter
+|
+|
+|____________ saved
+|                |
+|                |
+|                |____________   XXX
+|                |                |____________ FR
+|                |                |              |___________ ItemKNN
+|                |                |              |___________ NeuMF
+|                |                |     
+|                |                |____________ BR
+|                |                |              |___________ ItemKNN
+|                |                |              |___________ NeuMF
+|                |                |     
+|                |                |____________ DE
+|                |                |              |___________ ItemKNN
+|                |                |              |___________ NeuMF
+|                |                |     
+|                |                |____________ GLOBAL
+|                |                               |___________ ItemKNN
+|                |                               |___________ NeuMF
+|                |____________   LFM
+|                                 |____________ FR
+|                                 |              |___________ ItemKNN
+|                                 |              |___________ NeuMF
+|                                 |     
+|                                 |____________ BR
+|                                 |              |___________ ItemKNN
+|                                 |              |___________ NeuMF
+|                                 |     
+|                                 |____________ DE
+|                                 |              |___________ ItemKNN
+|                                 |              |___________ NeuMF
+|                                 |     
+|                                 |____________ GLOBAL
+|                                                |___________ ItemKNN
+|                                                |___________ NeuMF
+|
+|
+|____________ predicted
+                 |
+                 |
+                 |____________   XXX
+                 |                |____________ FR
+                 |                |              |___________ ItemKNN
+                 |                |              |___________ NeuMF
+                 |                |     
+                 |                |____________ BR
+                 |                |              |___________ ItemKNN
+                 |                |              |___________ NeuMF
+                 |                |     
+                 |                |____________ DE
+                 |                |              |___________ ItemKNN
+                 |                |              |___________ NeuMF
+                 |                |     
+                 |                |____________ GLOBAL
+                 |                               |___________ ItemKNN
+                 |                               |___________ NeuMF
+                 |____________   LFM
+                                  |____________ FR
+                                  |              |___________ ItemKNN
+                                  |              |___________ NeuMF
+                                  |     
+                                  |____________ BR
+                                  |              |___________ ItemKNN
+                                  |              |___________ NeuMF
+                                  |     
+                                  |____________ DE
+                                  |              |___________ ItemKNN
+                                  |              |___________ NeuMF
+                                  |     
+                                  |____________ GLOBAL
+                                                 |___________ ItemKNN
+                                                 |___________ NeuMF
+```
+
+
 
 
 

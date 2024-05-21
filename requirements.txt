@@ -1,6 +1,11 @@
+pandas
+numpy
+tqdm
+
 ray
 "ray[tune]"
 recbole
-pandas
-numpy
 kmeans_pytorch
+
+seaborn
+matplotlib
