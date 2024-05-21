@@ -1,46 +1,26 @@
-from recbole.quick_start import run_recbole
+# Run and saves Recbole models for different datasets
+
 import numpy as np
 
+from recbole.quick_start import run_recbole
+
+N_REPETITIONS = 2 # Number of time to compute a model with same parameters to control models randomness
 
 if __name__ == "__main__":
-    for n in range(20):
-        print(f'{n + 1} ieme tour des datasets')
-        for platform in ["DEEZER", "LFM"]:
-            for country in ["GLOBAL"]:
+    for n in range(N_REPETITIONS):
+        for platform in ["XXX", "LFM"]:
+            for country in ["FR", "BR", "DE", "GLOBAL"]:
                 for model in ["ItemKNN", "NeuMF"]:
                     run_recbole(
                         model=model,
-                        dataset=platform + "_" + country,
+                        dataset= f"{platform}_{country}",
                         config_dict={
                             "field_separator": ",",
                             "platform": platform,
                             "country": country,
-                            "topk": [10, 100],
+                            "topk": 10,
                             "valid_metric": "MRR@10",
                             'reproducibility' : False,
-                            'seed' : np.random.randint(0, 10000)                  
+                            'seed' : np.random.randint(0, 10000)
                             },
                     )
-
-
-
-
-# if __name__ == "__main__":
-#     for n in range(100):
-#         print(f'{n + 1} ieme tour des datasets')
-#         for platform in ["LFM", "DEEZER"]:
-#             for country in ["FR", "DE", "BR"]:
-#                 for model in ["ItemKNN", "NeuMF"]:
-#                     run_recbole(
-#                         model=model,
-#                         dataset=platform + "_" + country,
-#                         config_dict={
-#                             "field_separator": ",",
-#                             "platform": platform,
-#                             "country": country,
-#                             "topk": [10, 100],
-#                             "valid_metric": "MRR@10",
-#                             'reproducibility' : False,
-#                             'seed' : np.random.randint(0, 10000)                  
-#                             },
-#                     )
