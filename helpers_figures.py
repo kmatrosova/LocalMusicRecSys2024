@@ -7,12 +7,7 @@ import seaborn as sns
 
 from tqdm import tqdm
 
-COUNTRY_ALIASES = {
-    "FR": "France",
-    "DE": "Germany",
-    "BR": "Brazil",
-}
-
+from globals import *
 
 class MetadataProcesor:
     """Process and format metadata files to use them in MakePlots class"""
@@ -83,7 +78,7 @@ class MakePlots:
         self.n_tries = n_tries
         self.predictions = dict()
 
-        for dataset in ["LFM", "XXX"]:
+        for dataset in PLATFORMS:
             for model in ["NeuMF", "ItemKNN"]:
 
                 if self.global_models:
@@ -103,7 +98,7 @@ class MakePlots:
                             ["user_id", "media_id"]
                         ]
 
-                        for country in ["FR", "DE", "BR"]:
+                        for country in COUNTRIES:
                             country_user_ids = [
                                 int(uid)
                                 for uid, user_country in self.user_country_dict[
@@ -122,7 +117,7 @@ class MakePlots:
 
                 else:  # LOCAL models
 
-                    for country in ["FR", "DE", "BR"]:
+                    for country in COUNTRIES:
 
                         filenames = sorted(
                             os.listdir(f"predicted/{dataset}/{country}/{model}/"),
@@ -151,8 +146,8 @@ class MakePlots:
 
     def load_datasets(self):
         self.datasets = dict()
-        for dataset in ["XXX", "LFM"]:
-            for country in ["DE", "BR", "FR"]:
+        for dataset in PLATFORMS:
+            for country in COUNTRIES:
                 print(f"Loading {dataset} {country} dataset")
                 filename = f"{dataset}_{country}"
                 df = pd.read_csv(f"dataset/{filename}/{filename}.inter")
@@ -165,8 +160,8 @@ class MakePlots:
 
     def plot_dataset_local_streams_percents(self, save=False):
         proportion_local_datasets = []
-        for dataset in ["XXX", "LFM"]:
-            for country in ["FR", "DE", "BR"]:
+        for dataset in PLATFORMS:
+            for country in COUNTRIES:
                 proportion_local_datasets.append(
                     [
                         dataset,
@@ -211,9 +206,9 @@ class MakePlots:
         plt.close()
 
     def plot_local_listening_distribution_hist(self, save=False):
-
-        country_colors = ["tab:blue", "tab:green", "tab:orange"]
-        for i, country in enumerate(["FR", "BR", "DE"]):
+        
+        y_ticks = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+        for country in COUNTRIES:
             df = self.datasets[("LFM", country)][["user_id", "country"]]
             df = pd.DataFrame(
                 df.groupby("user_id").value_counts(normalize=True)
@@ -232,7 +227,7 @@ class MakePlots:
                 LFM_proportions_list,
                 stat="proportion",
                 bins=10,
-                color=country_colors[i],
+                color=COUNTRY_COLORS[country],
                 label="LFM",
             )
             plt.ylim(0, 0.5)
@@ -252,12 +247,12 @@ class MakePlots:
                 XXX_proportions_list,
                 stat="proportion",
                 bins=10,
-                color=country_colors[i],
+                color=COUNTRY_COLORS[country],
                 label="XXX",
             )
 
             plt.ylim(0, 0.5)
-            plt.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
+            plt.yticks(y_ticks)
             plt.ylabel("User Proportion", fontsize=18)
             plt.xlabel("Proportion of Local Streams", fontsize=18)
             if save:
@@ -271,8 +266,8 @@ class MakePlots:
 
         result_df = []
 
-        for dataset in ["LFM", "XXX"]:
-            for country in ["FR", "DE", "BR"]:
+        for dataset in PLATFORMS:
+            for country in COUNTRIES:
                 for model in ["NeuMF", "ItemKNN"]:
                     if self.global_models:
                         filenames = sorted(
@@ -326,7 +321,7 @@ class MakePlots:
 
     def plot_bias_topk_k_reco(self, save=False):
 
-        for dataset in ["LFM", "XXX"]:
+        for dataset in PLATFORMS:
             filtered_data = self.result_df[
                 self.result_df["Data"] == dataset
             ].sort_values(by="k")

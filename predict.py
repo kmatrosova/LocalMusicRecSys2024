@@ -1,18 +1,21 @@
 # Computes and saves predictions for all computed models
 
 import os
-import pandas as pd
-
+from globals import *
 from recbole.quick_start.quick_start import load_data_and_model
 
-from helpers_predict import get_users_top_k_items
+from helpers_predict import (
+    get_users_top_k_items,
+    get_users_from_interaction_dataset,
+    save_predictions,
+)
 
 
 K_MAX = 100  # Computing top-K_MAX recommendations
 
-for platform in ["XXX", "LFM"]:
-    for country in ["FR", "BR", "DE", "GLOBAL"]:
-        for model in ["ItemKNN", "NeuMF"]:
+for platform in PLATFORMS:
+    for country in COUNTRIES + ["GLOBAL"]:
+        for model in MODELS:
 
             saved_models_filenames = os.listdir(f"saved/{platform}/{country}/{model}")
 
@@ -27,16 +30,9 @@ for platform in ["XXX", "LFM"]:
                         model_file=f"saved/{platform}/{country}/{model}/{file_name}"
                     )
                 )
-                interaction_dataset = pd.read_csv(
-                    f"dataset/{platform}_{country}/{platform}_{country}.inter"
-                )
-                users = interaction_dataset["user_id:token"].unique().tolist()
 
+                users = get_users_from_interaction_dataset(platform, country)
                 top_k_items = get_users_top_k_items(
                     users, dataset, model, test_data, K_MAX, config
                 )
-
-                df = pd.DataFrame(top_k_items, columns=["user_id", "media_id", "score"])
-                df.to_csv(
-                    f"predicted/{platform}/{country}/{model}/{file_name[:-4]}.csv"
-                )
+                save_predictions(top_k_items, platform, country, model, file_name)
