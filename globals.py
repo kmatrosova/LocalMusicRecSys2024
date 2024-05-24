@@ -1,4 +1,4 @@
-PLATFORMS = ["XXX", "LFM"]
+PLATFORMS = ["DEEZER", "LFM"]
 COUNTRIES = ["FR", "BR", "DE"]
 MODELS = ["ItemKNN", "NeuMF"]
 

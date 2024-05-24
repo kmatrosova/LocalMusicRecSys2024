@@ -15,7 +15,7 @@ Moreover, we show that the algorithmic biases exhibited in the original work var
 
 Please download the datasets used in experiments in the links provided below, and put them in the `dataset` directory.
 - [LFM-2B](https://drive.google.com/file/d/1a7DG9UNKNZQlXVjS9zoYdzl4jZC06Rhz/view?usp=drive_link)
-- XXX (masked for anonymity purpose, link available after publication)
+- DEEZER (masked for anonymity purpose, link available after publication)
 
 ## Environment
 - python 3.10.12

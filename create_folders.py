@@ -1,7 +1,7 @@
 import os
 from globals import *
 
-base_dirs = ["dataset", "saved", "predicted"]
+base_dirs = ["figures", "dataset", "saved", "predicted"]
 
 
 def create_dir(path):

@@ -9,12 +9,13 @@ from tqdm import tqdm
 
 from globals import *
 
+
 class MetadataProcesor:
     """Process and format metadata files to use them in MakePlots class"""
 
-    def __init__(self, LFM_metadata_file, XXX_metadata_file) -> None:
+    def __init__(self, LFM_metadata_file, DEEZER_metadata_file) -> None:
         self.LFM_metadata_file = LFM_metadata_file
-        self.XXX_metadata_file = XXX_metadata_file
+        self.DEEZER_metadata_file = DEEZER_metadata_file
 
     def clean_metadata(self, df):
         """Keeping wanted data columns"""
@@ -25,13 +26,13 @@ class MetadataProcesor:
         metadata_LFM = pd.read_csv(
             f"./dataset/{self.LFM_metadata_file}.csv", low_memory=False
         )
-        metadata_XXX = pd.read_csv(
-            f"./dataset/{self.XXX_metadata_file}.csv", low_memory=False
+        metadata_DEEZER = pd.read_csv(
+            f"./dataset/{self.DEEZER_metadata_file}.csv", low_memory=False
         )
         metadata_LFM = self.clean_metadata(metadata_LFM)
-        metadata_XXX = self.clean_metadata(metadata_XXX)
+        metadata_DEEZER = self.clean_metadata(metadata_DEEZER)
 
-        self.metadata = {"XXX": metadata_XXX, "LFM": metadata_LFM}
+        self.metadata = {"DEEZER": metadata_DEEZER, "LFM": metadata_LFM}
 
 
 class MakePlots:
@@ -51,12 +52,12 @@ class MakePlots:
                 .reset_index()[["index", 0]]
                 .to_numpy()
             )
-            XXX_user_country = dict(
-                pd.read_csv("dataset/XXX_GLOBAL/user_country.csv").to_numpy()
+            DEEZER_user_country = dict(
+                pd.read_csv("dataset/DEEZER_GLOBAL/user_country.csv").to_numpy()
             )
 
             self.user_country_dict = {
-                "XXX": XXX_user_country,
+                "DEEZER": DEEZER_user_country,
                 "LFM": LFM_user_country,
             }
 
@@ -179,7 +180,7 @@ class MakePlots:
 
         self.proportion_local_datasets["Dataset_"] = self.proportion_local_datasets[
             "Dataset"
-        ].replace({"XXX": "XXX", "LFM": "LFM-2b"})
+        ].replace({"LFM": "LFM-2b", "DEEZER": "XXX"})
 
         self.proportion_local_datasets["Country_"] = self.proportion_local_datasets[
             "Country"
@@ -192,10 +193,12 @@ class MakePlots:
             y="Proportion of Local Streams",
             hue="Dataset_",
             palette="cool",
+            order=["France", "Germany", "Brazil"],
         )
         plt.xticks(fontsize=18)
+        plt.yticks([0, 0.1, 0.2, 0.3], fontsize=16)
         plt.xlabel("")
-        plt.legend(title="")
+        plt.legend(title="", fontsize=16)
         plt.ylabel("Proportion of Local Streams", fontsize=18)
 
         if save:
@@ -206,8 +209,7 @@ class MakePlots:
         plt.close()
 
     def plot_local_listening_distribution_hist(self, save=False):
-        
-        y_ticks = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+
         for country in COUNTRIES:
             df = self.datasets[("LFM", country)][["user_id", "country"]]
             df = pd.DataFrame(
@@ -215,11 +217,11 @@ class MakePlots:
             ).reset_index()
             LFM_proportions_list = df[df["country"] == country].proportion.tolist()
 
-            df = self.datasets[("XXX", country)][["user_id", "country"]]
+            df = self.datasets[("DEEZER", country)][["user_id", "country"]]
             df = pd.DataFrame(
                 df.groupby("user_id").value_counts(normalize=True)
             ).reset_index()
-            XXX_proportions_list = df[df["country"] == country].proportion.tolist()
+            DEEZER_proportions_list = df[df["country"] == country].proportion.tolist()
 
             plt.figure()
             sns.set_style("white")
@@ -232,6 +234,7 @@ class MakePlots:
             )
             plt.ylim(0, 0.5)
             plt.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
+            plt.xticks([0, 0.2, 0.4, 0.6, 0.8, 1])
             plt.ylabel("User Proportion", fontsize=18)
             plt.xlabel("Proportion of Local Streams", fontsize=18)
             if save:
@@ -244,20 +247,21 @@ class MakePlots:
             plt.figure()
             sns.set_style("white")
             sns.histplot(
-                XXX_proportions_list,
+                DEEZER_proportions_list,
                 stat="proportion",
                 bins=10,
                 color=COUNTRY_COLORS[country],
-                label="XXX",
+                label="DEEZER",
             )
 
             plt.ylim(0, 0.5)
-            plt.yticks(y_ticks)
+            plt.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
+            plt.xticks([0, 0.2, 0.4, 0.6, 0.8, 1])
             plt.ylabel("User Proportion", fontsize=18)
             plt.xlabel("Proportion of Local Streams", fontsize=18)
             if save:
                 plt.savefig(
-                    f"./figures/local_listening_distribution_hist_XXX_{self.matadata_filename}_{country}.pdf"
+                    f"./figures/local_listening_distribution_hist_DEEZER_{self.matadata_filename}_{country}.pdf"
                 )
             plt.plot()
             plt.close()
@@ -343,12 +347,20 @@ class MakePlots:
             )
 
             plt.axhline(y=0, color="black", linestyle="--")
-            plt.text(113, 0, "No bias", color="black", ha="right", fontsize=18)
-            plt.xticks(self.k_values)
+            plt.text(113.5, 0, "No bias", color="black", ha="right", fontsize=18)
+            plt.xticks(self.k_values, fontsize=18)
+            plt.yticks(fontsize=18)
 
             plt.xlabel("k", fontsize=18)
             plt.ylabel("Local Bias", fontsize=18)
-            plt.legend(loc="upper right", bbox_to_anchor=(1, 0.85), fontsize=16)
+
+            if self.global_label == "LOCAL":
+                plt.legend(loc="upper right", bbox_to_anchor=(1, 0.85), fontsize=16)
+            else:
+                plt.legend().remove()
+            if dataset == "LFM":
+                plt.ylim(-0.1, 0.08)
+
 
             if save:
                 if dataset == "LFM":
