@@ -192,8 +192,8 @@ class MakePlots:
             x="Country_",
             y="Proportion of Local Streams",
             hue="Dataset_",
-            palette="cool",
             order=["France", "Germany", "Brazil"],
+            palette=[sns.color_palette("tab10")[4], sns.color_palette("tab10")[3]]
         )
         plt.xticks(fontsize=18)
         plt.yticks([0, 0.1, 0.2, 0.3], fontsize=16)
@@ -358,9 +358,6 @@ class MakePlots:
                 plt.legend(loc="upper right", bbox_to_anchor=(1, 0.85), fontsize=16)
             else:
                 plt.legend().remove()
-            if dataset == "LFM":
-                plt.ylim(-0.1, 0.08)
-
 
             if save:
                 if dataset == "LFM":
