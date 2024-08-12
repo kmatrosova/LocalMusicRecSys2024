@@ -43,5 +43,5 @@ def get_users_from_interaction_dataset(platform, country):
 
 def save_predictions(top_k_items, platform, country, model, file_name):
 
-    df = pd.DataFrame(top_k_items, columns=["user_id", "media_id", "score"])
+    df = pd.DataFrame(top_k_items, columns=["user_id", "item_id", "score"])
     df.to_csv(f"predicted/{platform}/{country}/{model}/{file_name[:-4]}.csv")

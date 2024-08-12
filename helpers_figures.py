@@ -19,7 +19,7 @@ class MetadataProcesor:
 
     def clean_metadata(self, df):
         """Keeping wanted data columns"""
-        return df[["country", "media_id"]]
+        return df[["country", "item_id"]]
 
     def process(self):
         """Import and clean data"""
@@ -96,7 +96,7 @@ class MakePlots:
                         filename = filenames[try_index]
                         filepath = f"predicted/{dataset}/GLOBAL/{model}/{filename}"
                         all_predictions_df = pd.read_csv(filepath)[
-                            ["user_id", "media_id"]
+                            ["user_id", "item_id"]
                         ]
 
                         for country in COUNTRIES:
@@ -136,7 +136,7 @@ class MakePlots:
                                 f"predicted/{dataset}/{country}/{model}/{filename}"
                             )
                             predictions_df = pd.read_csv(filepath)[
-                                ["user_id", "media_id"]
+                                ["user_id", "item_id"]
                             ]
 
                             self.predictions[(dataset, country, model, try_index)] = (
@@ -153,9 +153,9 @@ class MakePlots:
                 filename = f"{dataset}_{country}"
                 df = pd.read_csv(f"dataset/{filename}/{filename}.inter")
                 df = df.rename(
-                    columns={"user_id:token": "user_id", "item_id:token": "media_id"}
+                    columns={"user_id:token": "user_id", "item_id:token": "item_id"}
                 )
-                df = pd.merge(df, self.metadata[dataset], on=["media_id"], how="left")
+                df = pd.merge(df, self.metadata[dataset], on=["item_id"], how="left")
 
                 self.datasets[(dataset, country)] = df
 
@@ -295,7 +295,7 @@ class MakePlots:
                         predictions_df = pd.merge(
                             predictions_df,
                             self.metadata[dataset],
-                            on=["media_id"],
+                            on=["item_id"],
                             how="left",
                         )
 
