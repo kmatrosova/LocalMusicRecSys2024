@@ -1,7 +1,7 @@
 # Do Recommender Systems Promote Local Music? A Reproducibility Study Using Music Streaming Data
 
 
-This anonymized repository provides Python code to reproduce experiments from the paper "Do Recommender Systems Promote Local Music? A Reproducibility Study Using Music Streaming Data", submitted to The ACM Conference on Recommender Systems 2024 (RecSys ‘24) in the reproducibility track.
+This anonymized repository provides Python code to reproduce experiments from the paper _"Do Recommender Systems Promote Local Music? A Reproducibility Study Using Music Streaming Data"_, which is currently under review for presentation at the 18th ACM Conference on Recommender Systems ([RecSys 2024](https://recsys.acm.org/recsys24/)) in the reproducibility track.
 
 
 ## Abstract
@@ -13,9 +13,29 @@ Moreover, we show that the algorithmic biases exhibited in the original work var
 
 ## Datasets
 
-Please download the datasets used in experiments in the links provided below, and put them in the `dataset` directory.
-- [LFM-2B](https://drive.google.com/file/d/1a7DG9UNKNZQlXVjS9zoYdzl4jZC06Rhz/view?usp=drive_link)
-- DEEZER (masked for anonymity purpose, link available after publication)
+To create the folder architecture, run: 
+```
+python create_folders.py
+```
+
+Please download the datasets used in experiments in thefollowing link: [DEEZER DATASET](https://zenodo.org/records/13309698)
+
+
+The `dataset` directory must follow this structure:  
+```
+├── DEEZER_BR
+│   └── DEEZER_BR.inter
+├── DEEZER_FR
+│   └── DEEZER_FR.inter
+├── DEEZER_DE
+│   └── DEEZER_DE.inter
+├── DEEZER_GLOBAL
+│   ├── user_country.csv
+│   └── DEEZER_GLOBAL.inter
+├── metadata_DEEZER_active.csv  
+├── metadata_DEEZER_origin.csv 
+└── metadata_DEEZER_musicbrainz.csv  
+```
 
 ## Environment
 - python 3.10.12
@@ -27,25 +47,27 @@ Please download the datasets used in experiments in the links provided below, an
 
 ## Onboarding
 
-Change of the path of saved files must be made. First open recbole file `trainer.py`, using nano or any other text editor :
+We use the implementation of ItemKN and NeuMF available in [RecBole](https://recbole.io/), a Python library based on PyTorch that aims to provide a unified framework for developing and reproducing recommendation algorithms. 
+
+Change of the path of saved files must be made. Firstly, open the RecBole file `trainer.py`, using nano or any other text editor:
 
 ```
 nano path_to_recbole/trainer/trainer.py
 ```
 
-Add the following line in the begining of the file :
+Add the following line in the begining of the file:
 
 ```
 import pathlib
 ```
 
-Then change the line
+Then change the line:
 
 ```
 saved_model_file = "{}-{}.pth".format(self.config["model"], get_local_time())
 ```
 
-to
+to:
 
 ```
 saved_model_file = f"{self.config["platform"]}/{self.config["country"]}/{self.config["model"]}/get_local_time().pth"
@@ -53,13 +75,13 @@ saved_model_file = f"{self.config["platform"]}/{self.config["country"]}/{self.co
 
 ## Running the code
 
-Training and testing a model on a specified dataset
+Training and testing a model on a specified dataset:
 
 ```
 python run.py
 ```
 
-Get and save top k items for each user for each model
+Retrieve and save the Top K items for each user for each model:
 
 ```
 python predict.py
