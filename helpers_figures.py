@@ -180,7 +180,7 @@ class MakePlots:
 
         self.proportion_local_datasets["Dataset_"] = self.proportion_local_datasets[
             "Dataset"
-        ].replace({"LFM": "LFM-2b", "DEEZER": "XXX"})
+        ].replace({"LFM": "LFM-2b", "DEEZER": "DEEZER"})
 
         self.proportion_local_datasets["Country_"] = self.proportion_local_datasets[
             "Country"
