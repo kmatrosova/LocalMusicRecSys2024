@@ -13,11 +13,6 @@ Moreover, we show that the algorithmic biases exhibited in the original work var
 
 ## Datasets
 
-To create the folder architecture, run: 
-```
-python create_folders.py
-```
-
 Please download the datasets used in experiments in thefollowing link: [DEEZER DATASET](https://zenodo.org/records/13309698)
 
 
@@ -35,6 +30,11 @@ The `dataset` directory must follow this structure:
 ├── metadata_DEEZER_active.csv  
 ├── metadata_DEEZER_origin.csv 
 └── metadata_DEEZER_musicbrainz.csv  
+```
+
+To create the folder architecture, run: 
+```
+python create_folders.py
 ```
 
 ## Environment
