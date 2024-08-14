@@ -74,6 +74,13 @@ class MakePlots:
         df["rank"] = list(range(1, k_max + 1)) * n_users  # Adding rank column
         return df[df["rank"] <= k].drop(columns=["rank"])
 
+    def drop_unlabeled_streams(self, stream_df):
+        df = stream_df.copy()
+        df = df.dropna(subset=["country"])
+        df = df[df["country"] != 0]
+        df = df[df["country"] != "0"]
+        return df
+
     def load_predictions(self, n_tries):
 
         self.n_tries = n_tries
@@ -163,13 +170,16 @@ class MakePlots:
         proportion_local_datasets = []
         for dataset in PLATFORMS:
             for country in COUNTRIES:
+                labeled_streams_dataset = self.drop_unlabeled_streams(
+                    self.datasets[(dataset, country)]
+                )
                 proportion_local_datasets.append(
                     [
                         dataset,
                         country,
-                        self.datasets[(dataset, country)]["country"].value_counts(
-                            normalize=True
-                        )[country],
+                        labeled_streams_dataset["country"].value_counts(normalize=True)[
+                            country
+                        ],
                     ]
                 )
 
@@ -193,12 +203,12 @@ class MakePlots:
             y="Proportion of Local Streams",
             hue="Dataset_",
             order=["France", "Germany", "Brazil"],
-            palette=[sns.color_palette("tab10")[4], sns.color_palette("tab10")[3]]
+            palette=[sns.color_palette("tab10")[4], sns.color_palette("tab10")[3]],
         )
         plt.xticks(fontsize=18)
-        plt.yticks([0, 0.1, 0.2, 0.3], fontsize=16)
+        plt.yticks(ticks=[0, 0.1, 0.2, 0.3, 0.4, 0.45], labels=['0', '0.1', '0.2', '0.3', '0.4', ''], fontsize=16)
         plt.xlabel("")
-        plt.legend(title="", fontsize=16)
+        plt.legend(title="", fontsize=16, loc="upper center")
         plt.ylabel("Proportion of Local Streams", fontsize=18)
 
         if save:
