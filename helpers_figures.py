@@ -223,13 +223,13 @@ class MakePlots:
         for country in COUNTRIES:
             df = self.datasets[("LFM", country)][["user_id", "country"]]
             df = pd.DataFrame(
-                df.groupby("user_id").value_counts(normalize=True)
+                self.drop_unlabeled_streams(df).groupby("user_id").value_counts(normalize=True)
             ).reset_index()
             LFM_proportions_list = df[df["country"] == country].proportion.tolist()
 
             df = self.datasets[("DEEZER", country)][["user_id", "country"]]
             df = pd.DataFrame(
-                df.groupby("user_id").value_counts(normalize=True)
+                self.drop_unlabeled_streams(df).groupby("user_id").value_counts(normalize=True)
             ).reset_index()
             DEEZER_proportions_list = df[df["country"] == country].proportion.tolist()
 
