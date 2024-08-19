@@ -190,7 +190,7 @@ class MakePlots:
 
         self.proportion_local_datasets["Dataset_"] = self.proportion_local_datasets[
             "Dataset"
-        ].replace({"LFM": "LFM-2b", "DEEZER": "DEEZER"})
+        ].replace({"LFM": "LFM-2b", "DEEZER": "Deezer"})
 
         self.proportion_local_datasets["Country_"] = self.proportion_local_datasets[
             "Country"
@@ -203,7 +203,7 @@ class MakePlots:
             y="Proportion of Local Streams",
             hue="Dataset_",
             order=["France", "Germany", "Brazil"],
-            palette=[sns.color_palette("tab10")[4], sns.color_palette("tab10")[3]],
+            palette=['#d97c7c', '#cccccc'],
         )
         plt.xticks(fontsize=18)
         plt.yticks(ticks=[0, 0.1, 0.2, 0.3, 0.4, 0.45], labels=['0', '0.1', '0.2', '0.3', '0.4', ''], fontsize=16)
