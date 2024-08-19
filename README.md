@@ -13,7 +13,7 @@ Moreover, we show that the algorithmic biases exhibited in the original work var
 
 ## Datasets
 
-Please download the datasets used in experiments in thefollowing link: [DEEZER DATASET](https://zenodo.org/records/13309698)
+Please download the datasets used in experiments in the following link: [DEEZER DATASET](https://zenodo.org/records/13309698)
 
 
 The `dataset` directory must follow this structure:  
